@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'graph_page.dart';
 
 class HistoryPage extends StatefulWidget {
   static const routeName = '/history';
@@ -28,13 +29,11 @@ class _HistoryPageState extends State<HistoryPage> {
         future: historyData,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
+            return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Text('No previous history found'),
-            );
+            return Center(child: Text('No previous history found'));
           } else {
             return ListView.builder(
               itemCount: snapshot.data!.length,
@@ -56,7 +55,10 @@ class _HistoryPageState extends State<HistoryPage> {
                         children: [
                           Text('Date & Time: ${_formatDateTime(scanRecord.dateTime)}'),
                           Text('Scan Data:'),
-                          _buildScanDataList(scanRecord.scanData),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: _buildScanDataTable(scanRecord.scanData),
+                          ),
                         ],
                       ),
                       trailing: ElevatedButton(
@@ -75,6 +77,12 @@ class _HistoryPageState extends State<HistoryPage> {
             );
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, GraphPage.routeName);
+        },
+        child: Icon(Icons.insert_chart),
       ),
     );
   }
@@ -101,15 +109,22 @@ class _HistoryPageState extends State<HistoryPage> {
     return formattedDateTime;
   }
 
-  Widget _buildScanDataList(String scanData) {
+  Widget _buildScanDataTable(String scanData) {
     Map<String, dynamic> jsonData = json.decode(scanData);
-    List<Widget> attributes = [];
-    jsonData.forEach((key, value) {
-      attributes.add(Text('$key: $value'));
-    });
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: attributes,
+
+    return DataTable(
+      columns: [
+        DataColumn(label: Text('Attribute')),
+        DataColumn(label: Text('Value')),
+      ],
+      rows: jsonData.entries.map((entry) {
+        return DataRow(
+          cells: [
+            DataCell(Text(entry.key)),
+            DataCell(Text(entry.value.toString())),
+          ],
+        );
+      }).toList(),
     );
   }
 }

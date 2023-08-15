@@ -4,6 +4,7 @@ import 'package:shrimpapp/consumer_page.dart'; // Import the ConsumerPage
 import 'package:shrimpapp/scanner_page.dart'; // Import the ScannerPage
 import 'package:shrimpapp/consumer_dashboard.dart';
 import 'package:shrimpapp/history_page.dart';
+import 'package:shrimpapp/graph_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         ScannerPage.routeName: (context) => ScannerPage(),
         ConsumerDashboard.routeName: (context) => ConsumerDashboard(),
         HistoryPage.routeName: (context) => HistoryPage(),
+        GraphPage.routeName: (context) => GraphPage(),
       },
     );
   }
